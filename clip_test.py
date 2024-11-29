@@ -32,7 +32,7 @@ class ClipTester:
         self.device = device
         self.object_name = object_name
         
-    def clip_testing(self, text_list, image_path):
+    def model_evaluation(self, text_list, image_path):
         self.text_list = text_list
         self.model_list = clip.available_models()
         self.image_path = image_path
@@ -40,11 +40,11 @@ class ClipTester:
         all_result = {}
         for model_name in clip.available_models():
             utils_printer.print_blue(f"Model: {model_name}", background=True)
-            all_result[model_name] = self.model_testing(model_name)
+            all_result[model_name] = self.model_run(model_name)
         
         self.save_to_excel(all_result, text_list, self.object_name, self.image_path)
 
-    def model_testing(self, model_name:str):
+    def model_run(self, model_name:str):
         if model_name not in self.model_list:
             utils_printer.print_red(f"Model {model_name} is not available")
             return
@@ -138,7 +138,7 @@ def main():
     print('Start testing')
     for object_name, image_path in image_path_dict.items():
         clip_tester = ClipTester(object_name, DEVICE)
-        clip_tester.clip_testing(text_list, image_path)
+        clip_tester.model_evaluation(text_list, image_path)
 
 if __name__ == "__main__":
     main()

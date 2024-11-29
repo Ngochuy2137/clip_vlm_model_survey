@@ -62,7 +62,7 @@ class ClipTester:
             print("     Label probs:", probs)  # prints: [[0.9927937  0.00421068 0.00299572]]
 
             for text_i, prob_i in zip(self.text_list, probs[0]):
-                print(f"        Label: {text_i} - Prob: {prob_i.max()*100:.3f} %")
+                print(f"        Text: {text_i} - Prob: {prob_i.max()*100:.3f} %")
 
         # Dọn dẹp mô hình sau khi hoàn thành vòng lặp
         del model

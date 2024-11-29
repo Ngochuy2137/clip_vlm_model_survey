@@ -42,7 +42,7 @@ class ClipTester:
                         all_result[model_name][label_img] = {}
                     for text_i, prob_i in zip(text_list, probs_text):
                         all_result[model_name][label_img][text_i] = prob_i
-                        print(f"        Label: {text_i} - Prob: {prob_i*100:.3f} %")
+                        print(f"        Text: {text_i} - Prob: {prob_i*100:.3f} %")
 
         
         # self.save_to_excel(all_result, text_list, self.object_name, self.image_path)
@@ -68,7 +68,7 @@ class ClipTester:
             print("     Label probs:", probs)  # prints: [[0.9927937  0.00421068 0.00299572]]
 
             for text_i, prob_i in zip(text_list, probs[0]):
-                print(f"        Label: {text_i} - Prob: {prob_i.max()*100:.3f} %")
+                print(f"        Text: {text_i} - Prob: {prob_i.max()*100:.3f} %")
 
         # Dọn dẹp mô hình sau khi hoàn thành vòng lặp
         del model

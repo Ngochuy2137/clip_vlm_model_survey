@@ -1,0 +1,57 @@
+Model: RN50x16
+    Label probs: [[9.111e-01 2.036e-04 8.881e-02]
+                [8.807e-04 9.966e-01 2.510e-03]
+                [2.471e-01 2.687e-02 7.261e-01]]
+        Label: a plane - Prob: 91.125 %
+        Label: a frisbee - Prob: 0.020 %
+        Label: a boomerang - Prob: 8.883 %
+    Image of object plane:
+        Label: a plane - Prob: 91.125 %
+        Label: a frisbee - Prob: 0.020 %
+        Label: a boomerang - Prob: 8.883 %
+    Image of object frisbee:
+        Label: a plane - Prob: 0.088 %
+        Label: a frisbee - Prob: 99.688 %
+        Label: a boomerang - Prob: 0.251 %
+    Image of object boomerang:
+        Label: a plane - Prob: 24.703 %
+        Label: a frisbee - Prob: 2.688 %
+        Label: a boomerang - Prob: 72.625 %
+Model: RN50x64
+    Label probs: [[8.667e-01 1.342e-04 1.329e-01]
+                [1.941e-04 9.688e-01 3.090e-02]
+                [1.865e-02 2.509e-02 9.561e-01]]
+        Label: a plane - Prob: 86.688 %
+        Label: a frisbee - Prob: 0.013 %
+        Label: a boomerang - Prob: 13.297 %
+    Image of object plane:
+        Label: a plane - Prob: 86.688 %
+        Label: a frisbee - Prob: 0.013 %
+        Label: a boomerang - Prob: 13.297 %
+    Image of object frisbee:
+        Label: a plane - Prob: 0.019 %
+        Label: a frisbee - Prob: 96.875 %
+        Label: a boomerang - Prob: 3.090 %
+    Image of object boomerang:
+        Label: a plane - Prob: 1.864 %
+        Label: a frisbee - Prob: 2.508 %
+        Label: a boomerang - Prob: 95.625 %
+Model: ViT-L/14@336px
+    Label probs: [[8.1982e-01 2.1410e-04 1.8005e-01]
+                [8.6248e-05 9.4092e-01 5.9204e-02]
+                [2.0126e-02 1.1053e-01 8.6914e-01]]
+        Label: a plane - Prob: 82.000 %
+        Label: a frisbee - Prob: 0.021 %
+        Label: a boomerang - Prob: 18.000 %
+    Image of object plane:
+        Label: a plane - Prob: 82.000 %
+        Label: a frisbee - Prob: 0.021 %
+        Label: a boomerang - Prob: 18.000 %
+    Image of object frisbee:
+        Label: a plane - Prob: 0.009 %
+        Label: a frisbee - Prob: 94.062 %
+        Label: a boomerang - Prob: 5.922 %
+    Image of object boomerang:
+        Label: a plane - Prob: 2.012 %
+        Label: a frisbee - Prob: 11.055 %
+        Label: a boomerang - Prob: 86.938 %

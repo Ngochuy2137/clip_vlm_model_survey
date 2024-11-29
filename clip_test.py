@@ -72,7 +72,8 @@ class ClipTester:
 
     def save_to_excel(self, probs_data, text_list, object_name, image_path=None):
         # Tạo DataFrame từ dữ liệu xác suất
-        df = pd.DataFrame(probs_data, index=text_list)
+        text_list_with_quotes = [f'"{text}"' for text in text_list]  # Thêm dấu ""
+        df = pd.DataFrame(probs_data, index=text_list_with_quotes)
 
         # Lấy đường dẫn folder của script
         folder_name = os.path.abspath(__file__)
@@ -82,7 +83,7 @@ class ClipTester:
 
         # Đường dẫn file Excel
         file_path = os.path.join(folder_name, 'clip_results.xlsx')
-        sheet_name = f'Probabilities of {object_name}'
+        sheet_name = f'Image of {object_name} test'
 
         # Kiểm tra nếu file đã tồn tại
         if os.path.exists(file_path):
@@ -92,7 +93,7 @@ class ClipTester:
         else:
             # Nếu file chưa tồn tại, tạo file mới
             with pd.ExcelWriter(file_path, engine="openpyxl") as writer:
-                df.to_excel(writer, sheet_name=f'Probabilities of {object_name}')
+                df.to_excel(writer, sheet_name=f'Image of {object_name} test')
 
         # Lưu ảnh nếu được cung cấp
         if image_path:

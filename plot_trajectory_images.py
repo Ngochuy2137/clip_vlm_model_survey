@@ -15,141 +15,6 @@ from python_utils import filer
 
 global_printer = Printer()
 
-class TrajectoryPlotter:
-    def __init__(self, ):
-        # self.x = trajectory[0]
-        # self.y = trajectory[1]
-        # self.z = trajectory[2]
-        # self.color = color
-        # self.figure = plt.figure(figsize=(10, 8))
-        # self.ax = self.figure.add_subplot(111, projection='3d')
-
-        self.util_plotter = Plotter()
-        self.colors = ['r', 'g', 'b', 'c', 'm', 'y', 'k', 'orange', 'purple', 'pink', 'brown', 'gray']
-
-    def plot_trajectory(self, trajectory, thown_object, rotate_data_whose_y_up=False):
-        """
-        Vẽ quỹ đạo 3D.
-        """
-        ax = self.util_plotter.plot_samples(trajectory, title=thown_object, rotate_data_whose_y_up=rotate_data_whose_y_up)
-        plt.show()
-        return ax
-
-    def save_specific_views(self, views, ax, prefix="trajectory_view"):
-        """
-        Lưu các góc nhìn cụ thể vào file.
-
-        Parameters:
-            views: Danh sách các góc nhìn dưới dạng [(elev, azim, name), ...].
-            prefix: Tiền tố cho tên file (mặc định là 'trajectory_view').
-        """
-        # get current path of this script
-        current_path = os.path.dirname(os.path.realpath(__file__))
-        # get the path to the output directory
-        output_dir = os.path.join(current_path, "images_trajectory")
-        # create the output directory if it does not exist
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-
-        for elev, azim, name in views:
-            ax.view_init(elev=elev, azim=azim)  # Thiết lập góc nhìn
-            file_name = f"{output_dir}/{prefix}_{name}.png"
-            plt.savefig(file_name)  # Lưu ảnh ra file
-            print(f"Đã lưu ảnh: {file_name}")
-
-
-    # def plot_samples(self, samples, title='', rotate_data_whose_y_up=False, plot_all=False, shuffle=False, save_views=None):
-    #     """
-    #     Plot 3D samples with optional rotation, shuffling, and saving views.
-
-    #     Parameters:
-    #         samples: List of 3D sample data (numpy arrays).
-    #         title: Title for the plot.
-    #         rotate_data_whose_y_up: Rotate data so Y becomes Z (default False).
-    #         plot_all: Plot all samples if True, otherwise limit by color list (default False).
-    #         shuffle: Shuffle samples before plotting (default False).
-    #         save_views: List of views to save in the form [(elev, azim, name), ...].
-    #                     If None, no images are saved (default None).
-    #     """
-    #     print('Plotting samples...')
-    #     figure = plt.figure(num=1, figsize=(12, 12))
-    #     ax = figure.add_subplot(111, projection='3d')
-
-    #     if shuffle:
-    #         random.shuffle(samples)
-
-    #     x_min, x_max = float('inf'), float('-inf')
-    #     y_min, y_max = float('inf'), float('-inf')
-    #     z_min, z_max = float('inf'), float('-inf')
-
-    #     for i in range(len(samples)):
-    #         if i >= len(self.colors) - 1:
-    #             if not plot_all:
-    #                 break
-    #             color_current = self.colors[-1]
-    #         else:
-    #             color_current = self.colors[i]
-
-    #         sample = np.array(samples[i])
-
-    #         if rotate_data_whose_y_up:
-    #             # Change the order of the axis so that z is up and follow the right-hand rule
-    #             x_data = sample[:, 0]
-    #             y_data = -sample[:, 2]
-    #             z_data = sample[:, 1]
-    #         else:
-    #             x_data = sample[:, 0]
-    #             y_data = sample[:, 1]
-    #             z_data = sample[:, 2]
-
-    #         ax.plot(x_data, y_data, z_data, 
-    #                 'o', color=color_current, alpha=0.5, label='Test ' + str(i + 1) + ' Sample Trajectory')
-
-    #         # Add 'end' text at the last point
-    #         ax.text(x_data[-1], y_data[-1], z_data[-1], 'end', color=color_current, fontsize=10)
-
-    #         x_min = min(x_min, x_data.min())
-    #         x_max = max(x_max, x_data.max())
-    #         y_min = min(y_min, y_data.min())
-    #         y_max = max(y_max, y_data.max())
-    #         z_min = min(z_min, z_data.min())
-    #         z_max = max(z_max, z_data.max())
-        
-    #     # Calculate ranges
-    #     x_range = x_max - x_min
-    #     y_range = y_max - y_min
-    #     z_range = z_max - z_min
-    #     max_range = max(x_range, y_range, z_range)
-
-    #     # Calculate midpoints
-    #     x_mid = (x_max + x_min) / 2
-    #     y_mid = (y_max + y_min) / 2
-    #     z_mid = (z_max + z_min) / 2
-
-    #     # Set equal aspect ratio
-    #     ax.set_xlim([x_mid - max_range / 2, x_mid + max_range / 2])
-    #     ax.set_ylim([y_mid - max_range / 2, y_mid + max_range / 2])
-    #     ax.set_zlim([z_mid - max_range / 2, z_mid + max_range / 2])
-
-    #     ax.set_xlabel('X')
-    #     ax.set_ylabel('Y')
-    #     ax.set_zlabel('Z')
-
-    #     plt.legend()
-    #     plt.title('3D samples ' + title, fontsize=25)
-
-
-    #     # Save views if requested
-    #     if save_views:
-    #         for elev, azim, name in save_views:
-    #             ax.view_init(elev=elev, azim=azim)  # Set view
-    #             file_name = f"{name}.png"
-    #             plt.savefig(file_name, bbox_inches='tight')  # Save image
-    #             print(f"Saved view: {file_name}")
-
-    #     plt.show()  # Display the plot before saving views
-
-    
 def rotate_vector(vector, angles):
     """
     Quay một vector xung quanh các trục x, y, z một góc nhất định.
@@ -260,7 +125,70 @@ def create_triangle(A, B, C, color='rgba(0, 0, 255, 0.5)'):
         opacity=0.5  # Độ trong suốt
     )
 
+def create_camera_to_I_line(camera_position, target_point):
+    """
+    Tạo đường thẳng nối từ camera đến trung điểm I.
+
+    Args:
+        camera_position (dict): Vị trí camera {"x": float, "y": float, "z": float}.
+        target_point (dict): Điểm mà camera nhìn vào {"x": float, "y": float, "z": float}.
+
+    Returns:
+        go.Scatter3d: Đối tượng đường thẳng của Plotly.
+    """
+    return go.Scatter3d(
+        x=[camera_position['x'], target_point['x']],
+        y=[camera_position['y'], target_point['y']],
+        z=[camera_position['z'], target_point['z']],
+        mode='lines',
+        line=dict(color='orange', width=5),  # Đường màu cam, độ dày 5
+        name="Camera to I"
+    )
+
+def configure_scene(camera_position=None, target_point=None, up_direction=None):
+    """
+    Cấu hình Scene của đồ thị Plotly.
+
+    Args:
+        camera_position (dict, optional): Vị trí camera.
+        target_point (dict, optional): Điểm camera nhìn vào.
+        up_direction (dict, optional): Trục nhìn lên của camera.
+
+    Returns:
+        dict: Cấu hình Scene.
+    """
+    scene_config = dict(
+        aspectmode='data',  # Giữ nguyên tỉ lệ
+        xaxis=dict(title='X-axis'),
+        yaxis=dict(title='Y-axis'),
+        zaxis=dict(title='Z-axis')
+    )
+
+    if camera_position or target_point or up_direction:
+        scene_config["camera"] = {
+            "eye": camera_position if camera_position else {"x": 2, "y": 2, "z": 2},
+            "center": {"x": target_point.get("x", 0), "y": target_point.get("y", 0), "z": target_point.get("z", 0)} if target_point else {"x": 0, "y": 0, "z": 0},
+            "up": up_direction if up_direction else {"x": 0, "y": 0, "z": 1}
+        }
+    return scene_config
+
 def plot_trajectory_3d(trajectory, camera_position=None, target_point=None, up_direction=None, save_image=False, note="", remove_background=False):
+    """
+    Vẽ quỹ đạo 3D, tam giác và đường thẳng từ camera đến điểm I.
+
+    Args:
+        trajectory (array): Dữ liệu quỹ đạo (N x 3).
+        camera_position (dict, optional): Vị trí camera.
+        target_point (dict, optional): Điểm camera nhìn vào.
+        up_direction (dict, optional): Trục nhìn lên của camera.
+        save_image (bool, optional): Lưu ảnh nếu True.
+        note (str, optional): Ghi chú thêm trên đồ thị.
+        remove_background (bool, optional): Loại bỏ phông nền nếu True.
+    """
+    # Đảm bảo trajectory là numpy array
+    trajectory = np.array(trajectory)
+
+    # Tạo đồ thị
     fig = go.Figure()
 
     # Thêm đường quỹ đạo
@@ -271,34 +199,35 @@ def plot_trajectory_3d(trajectory, camera_position=None, target_point=None, up_d
         marker=dict(size=5, color='red')
     ))
 
-    # Thiết lập tỷ lệ trục giữ nguyên
-    scene_config = dict(
-        aspectmode='data',  # Giữ nguyên tỉ lệ
-        xaxis=dict(title='X-axis'),
-        yaxis=dict(title='Y-axis'),
-        zaxis=dict(title='Z-axis')
-    )
-
-    # Thêm thông tin camera nếu có
-    if camera_position or target_point or up_direction:
-        scene_config["camera"] = {
-            "eye": camera_position if camera_position else {"x": 2, "y": 2, "z": 2},
-            "center": {"x": target_point.get("x", 0), "y": target_point.get("y", 0), "z": target_point.get("z", 0)} if target_point else {"x": 0, "y": 0, "z": 0},
-            "up": up_direction if up_direction else {"x": 0, "y": 0, "z": 1},  # Mặc định trục Z hướng lên
-        }
-    
+    # Thêm tam giác từ 3 điểm đầu, giữa, cuối
     A = np.array(trajectory[0])                   # Start point
     B = np.array(trajectory[len(trajectory) // 2])  # Middle point
     C = np.array(trajectory[-1])                   # End point
+
     fig.add_trace(create_triangle(A, B, C))
+
+    # Thêm đường từ camera đến điểm I
+    if camera_position and target_point:
+        fig.add_trace(create_camera_to_I_line(camera_position, target_point))
+
+    # Cấu hình Scene
+    scene_config = configure_scene(camera_position, target_point, up_direction)
+
     # Áp dụng cấu hình scene
     fig.update_layout(scene=scene_config, title=note)
+
+    # Loại bỏ phông nền nếu cần
     if remove_background:
         fig.update_scenes(
             xaxis_visible=False,
             yaxis_visible=False,
             zaxis_visible=False
         )
+
+    # Lưu ảnh nếu cần
+    if save_image:
+        fig.write_image(f"trajectory_{note}.png", scale=2)
+
     # Hiển thị đồ thị
     fig.show()
 
@@ -321,7 +250,7 @@ def main():
     camera_rotate_angles = (0, 0, 90)
     note = f'{camera_rotate_angles}'
     camera_config = setup_camera(data_pos[traj_idx], dis_cam=dis_cam, height_cam=height_cam, up_direction=up_direction, angles=camera_rotate_angles) 
-    plot_trajectory_3d(data_pos[traj_idx], camera_position=camera_config['cam_position'], target_point=camera_config['cam_target'], up_direction=up_direction, note=note, save_image=True, remove_background=False)
+    plot_trajectory_3d(data_pos[traj_idx], camera_position=camera_config['cam_position'], target_point=camera_config['cam_target'], up_direction=up_direction, note=note, save_image=False, remove_background=False)
 
 if __name__ == "__main__":
     main()

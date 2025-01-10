@@ -150,17 +150,68 @@ class TrajectoryPlotter:
     #     plt.show()  # Display the plot before saving views
 
     
-
-def setup_camera(trajectory, dis_cam, height_cam=None, up_direction={"x": 0, "y": 1, "z": 0}):
+def rotate_vector(vector, angles):
     """
-    Tính toán vị trí camera và hướng camera.
+    Quay một vector xung quanh các trục x, y, z một góc nhất định.
+
+    Args:
+        vector (np.ndarray): Vector cần quay (dạng numpy array, 1D).
+        angles (tuple): Bộ 3 góc quay (theta_x, theta_y, theta_z) tính bằng độ.
+
+    Returns:
+        np.ndarray: Vector sau khi quay.
+    """
+    # Chuyển góc từ độ sang radian
+    theta_x, theta_y, theta_z = np.radians(angles)
+
+    # Ma trận quay quanh trục X
+    R_x = np.array([
+        [1, 0, 0],
+        [0, np.cos(theta_x), -np.sin(theta_x)],
+        [0, np.sin(theta_x), np.cos(theta_x)]
+    ])
+
+    # Ma trận quay quanh trục Y
+    R_y = np.array([
+        [np.cos(theta_y), 0, np.sin(theta_y)],
+        [0, 1, 0],
+        [-np.sin(theta_y), 0, np.cos(theta_y)]
+    ])
+
+    # Ma trận quay quanh trục Z
+    R_z = np.array([
+        [np.cos(theta_z), -np.sin(theta_z), 0],
+        [np.sin(theta_z), np.cos(theta_z), 0],
+        [0, 0, 1]
+    ])
+
+    # Tích hợp ma trận quay
+    rotation_matrix = R_z @ R_y @ R_x
+
+    # Quay vector
+    rotated_vector = np.dot(rotation_matrix, vector)
+
+    return rotated_vector
+
+def setup_camera(trajectory, dis_cam, height_cam=None, angles=(0, 0, 0), up_direction={"x": 0, "y": 1, "z": 0}):
+    """
+    Tính toán vị trí camera và hướng camera, hỗ trợ góc lệch với pháp tuyến theo trục chỉ định.
+    
+    Args:
+        trajectory (list or array): Danh sách các điểm trên quỹ đạo [(x1, y1, z1), (x2, y2, z2), ...].
+        dis_cam (float): Khoảng cách từ camera đến trung điểm của quỹ đạo.
+        height_cam (float, optional): Chiều cao cố định của camera (nếu có).
+        angle (float, optional): Góc lệch với vector pháp tuyến (tính bằng độ).
+        axis (str, optional): Trục quay để tạo góc lệch (x, y, z).
+        up_direction (dict, optional): Hướng lên của camera (mặc định là {"x": 0, "y": 1, "z": 0}).
+
     Returns:
         dict: Cấu hình camera gồm vị trí camera (eye), điểm nhìn (center), và trục nhìn lên (up).
     """
     # Chọn các điểm đầu, giữa, cuối
-    A = trajectory[0]                             # start point
-    B = trajectory[len(trajectory) // 2]          # middle point
-    C = trajectory[-1]                              # end point
+    A = np.array(trajectory[0])                   # start point
+    B = np.array(trajectory[len(trajectory) // 2])  # middle point
+    C = np.array(trajectory[-1])                   # end point
     
     # Tính vector pháp tuyến
     AB = B - A
@@ -168,11 +219,15 @@ def setup_camera(trajectory, dis_cam, height_cam=None, up_direction={"x": 0, "y"
     normal_vector = np.cross(AB, AC)  # Tích chéo
     normal_vector = normal_vector / np.linalg.norm(normal_vector)  # Chuẩn hóa vector pháp tuyến
 
+    rotated_vector = rotate_vector(normal_vector, angles)
+
     # Trung điểm I của điểm đầu và cuối
     I = (A + C) / 2
 
-    # Tính vị trí camera (C) trên đường thẳng song song với vector pháp tuyến
-    camera_position = I + dis_cam * normal_vector
+    # Tính vị trí camera (C) trên vector pháp tuyến đã quay
+    camera_position = I + dis_cam * rotated_vector
+
+    # Gán giá trị chiều cao cố định nếu được chỉ định
     if height_cam is not None:
         if up_direction['x'] == 1:
             camera_position[0] = height_cam
@@ -190,63 +245,20 @@ def setup_camera(trajectory, dis_cam, height_cam=None, up_direction={"x": 0, "y"
 
     return camera_config
 
-def calculate_aspect_ratio(x, y, z):
+def create_triangle(A, B, C, color='rgba(0, 0, 255, 0.5)'):
     """
-    Tính toán tỉ lệ khung hình của dữ liệu 3D.
-
-    Args:
-        x, y, z (list or array): Tọa độ các điểm trên quỹ đạo.
-
-    Returns:
-        tuple: Tỉ lệ khung hình (aspect_ratio_x, aspect_ratio_y, aspect_ratio_z).
+    Tạo tam giác từ 3 điểm A, B, C.
     """
-    delta_x = max(x) - min(x)
-    delta_y = max(y) - min(y)
-    delta_z = max(z) - min(z)
-
-    # Tính tỉ lệ và chuẩn hóa để chiều cao (y) là chuẩn
-    max_delta = max(delta_x, delta_y, delta_z)
-    aspect_ratio_x = delta_x / max_delta
-    aspect_ratio_y = delta_y / max_delta
-    aspect_ratio_z = delta_z / max_delta
-
-    return aspect_ratio_x, aspect_ratio_y, aspect_ratio_z
-
-
-def save_plot_with_aspect_ratio(fig, x, y, z, note, base_width=1000, scale=2):
-    """
-    Lưu ảnh Plotly với tỉ lệ khung hình cố định.
-
-    Args:
-        fig (go.Figure): Đối tượng Plotly Figure.
-        x, y, z (list or array): Tọa độ các điểm trên quỹ đạo.
-        save_path (str): Đường dẫn để lưu ảnh.
-        base_width (int): Chiều rộng cơ bản của ảnh (mặc định là 1000 pixel).
-        scale (float): Hệ số nhân để tăng độ phân giải (mặc định là 2).
-    """
-    # get current path of this script
-    current_path = os.path.dirname(os.path.realpath(__file__))
-    # cd ..
-    current_path = os.path.dirname(current_path)
-    # mkdir images_trajectory
-    output_dir = os.path.join(current_path, "images_trajectory")
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    # save_path
-    save_path = os.path.join(output_dir, f"{note}.png")
-
-
-    # Tính tỉ lệ khung hình
-    aspect_ratio_x, aspect_ratio_y, aspect_ratio_z = calculate_aspect_ratio(x, y, z)
-
-    # Tính chiều rộng và chiều cao ảnh
-    width = int(base_width)
-    height = int(base_width * aspect_ratio_y / aspect_ratio_x)  # Giữ đúng tỉ lệ
-
-
-    # Lưu ảnh
-    fig.write_image(save_path, width=width, height=height, scale=scale)
-    print(f"Ảnh đã được lưu tại: {save_path} với kích thước {width}x{height} và scale={scale}")
+    return go.Mesh3d(
+        x=[A[0], B[0], C[0]],
+        y=[A[1], B[1], C[1]],
+        z=[A[2], B[2], C[2]],
+        i=[0],  # Chỉ số các điểm tạo mặt tam giác
+        j=[1],
+        k=[2],
+        facecolor=[color],  # Sử dụng facecolor thay vì color
+        opacity=0.5  # Độ trong suốt
+    )
 
 def plot_trajectory_3d(trajectory, camera_position=None, target_point=None, up_direction=None, save_image=False, note="", remove_background=False):
     fig = go.Figure()
@@ -275,8 +287,12 @@ def plot_trajectory_3d(trajectory, camera_position=None, target_point=None, up_d
             "up": up_direction if up_direction else {"x": 0, "y": 0, "z": 1},  # Mặc định trục Z hướng lên
         }
     
+    A = np.array(trajectory[0])                   # Start point
+    B = np.array(trajectory[len(trajectory) // 2])  # Middle point
+    C = np.array(trajectory[-1])                   # End point
+    fig.add_trace(create_triangle(A, B, C))
     # Áp dụng cấu hình scene
-    fig.update_layout(scene=scene_config, title='')
+    fig.update_layout(scene=scene_config, title=note)
     if remove_background:
         fig.update_scenes(
             xaxis_visible=False,
@@ -302,9 +318,10 @@ def main():
     up_direction = {"x": 0, "y": 1, "z": 0}  # Định nghĩa trục Y là hướng lên
     dis_cam = 4
     height_cam = None
-    camera_config = setup_camera(data_pos[traj_idx], dis_cam=dis_cam, height_cam=height_cam, up_direction=up_direction) 
-
-    plot_trajectory_3d(data_pos[traj_idx], camera_position=camera_config['cam_position'], target_point=camera_config['cam_target'], up_direction=up_direction, note=thrown_object, save_image=True, remove_background=True)
+    camera_rotate_angles = (0, 0, 90)
+    note = f'{camera_rotate_angles}'
+    camera_config = setup_camera(data_pos[traj_idx], dis_cam=dis_cam, height_cam=height_cam, up_direction=up_direction, angles=camera_rotate_angles) 
+    plot_trajectory_3d(data_pos[traj_idx], camera_position=camera_config['cam_position'], target_point=camera_config['cam_target'], up_direction=up_direction, note=note, save_image=True, remove_background=False)
 
 if __name__ == "__main__":
     main()

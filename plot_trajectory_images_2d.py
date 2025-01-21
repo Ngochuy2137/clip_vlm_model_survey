@@ -30,10 +30,8 @@ def plot_trajectory_2d(trajectory, object_name, data_type, traj_idx, projection_
         note (str): Ghi chú thêm trên đồ thị.
         debug (bool): Hiển thị hoặc ẩn trục tọa độ.
     """
-    image_name = f"{object_name}-{traj_idx}-{projection_plane.upper()}"
     if debug:
-        plot_title = image_name
-        image_name = f"{image_name}-debug"
+        plot_title = f"{object_name}-{traj_idx}-{projection_plane.upper()}"
     else:
         plot_title = ''
     trajectory = np.array(trajectory)
@@ -114,9 +112,12 @@ def plot_trajectory_2d(trajectory, object_name, data_type, traj_idx, projection_
 
     # Lưu ảnh nếu cần
     if save_image:
+        image_name = f"{object_name}-{traj_idx}-len{trajectory.shape[0]}-{projection_plane.upper()}"
+        if debug:
+            image_name = f"{image_name}-debug"
         # mkdir folder image
         cur_path = os.path.dirname(os.path.abspath(__file__))
-        images_dir = os.path.join(cur_path, 'trajectory_images', object_name)
+        images_dir = os.path.join(cur_path, 'trajectory_images', f'4_{object_name}_images', data_type, f'{object_name}-{traj_idx}')
         if not os.path.exists(images_dir):
             os.makedirs(images_dir)
         
@@ -151,32 +152,35 @@ if __name__ == "__main__":
     }
     for key, value in data.items():
         data_pos = [d['preprocess']['model_data'][:, :3] for d in value]
-        data_type = key
+        data_type = f'{key}-{len(data_pos)}'
         # Cấu hình vẽ
         for idx, traj in enumerate(data_pos):
             traj_len = traj.shape[0]
-            for plane in projection_planes:
-                if plane == 'xy':
-                    hor_range = (-1.5, 4.5)
-                    ver_range = (-1.5, 4.5)
-                elif plane == 'zy':
-                    hor_range = (-1.5, 4.5)
-                    ver_range = (-1.5, 4.5)
-                elif plane == 'xz':
-                    hor_range = (-1.5, 4.5)
-                    ver_range = (-1.5, 4.5)
+            # feed data points gradually
+            for i in range(30, traj_len):
+                data_plot = traj[:i]
+                for plane in projection_planes:
+                    if plane == 'xy':
+                        hor_range = (-1.5, 4.5)
+                        ver_range = (-1.5, 4.5)
+                    elif plane == 'zy':
+                        hor_range = (-1.5, 4.5)
+                        ver_range = (-1.5, 4.5)
+                    elif plane == 'xz':
+                        hor_range = (-1.5, 4.5)
+                        ver_range = (-1.5, 4.5)
 
-                plot_trajectory_2d(
-                    data_pos[idx], 
-                    object_name=thrown_object,
-                    data_type=data_type,
-                    traj_idx=idx,
-                    projection_plane=plane, 
-                    hor_range=hor_range, 
-                    ver_range=ver_range, 
-                    hor_tick_spacing=0.5,
-                    ver_tick_spacing=0.5,
-                    save_image=SAVE_IMAGE, 
-                    debug=DEBUG  # Bật trục tọa độ
-                )
-                # input()
+                    plot_trajectory_2d(
+                        data_plot, 
+                        object_name=thrown_object,
+                        data_type=data_type,
+                        traj_idx=idx,
+                        projection_plane=plane, 
+                        hor_range=hor_range, 
+                        ver_range=ver_range, 
+                        hor_tick_spacing=0.5,
+                        ver_tick_spacing=0.5,
+                        save_image=SAVE_IMAGE, 
+                        debug=DEBUG  # Bật trục tọa độ
+                    )
+                    # input()

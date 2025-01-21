@@ -23,7 +23,7 @@ def plot_trajectory_2d(trajectory, projection_plane='xy', x_range=None, y_range=
 
     Args:
         trajectory (np.ndarray): Dữ liệu quỹ đạo (Nx3).
-        projection_planes (list): Danh sách các mặt phẳng chiếu ('xy', 'xz', 'yz').
+        projection_plane (str): Mặt phẳng chiếu ('xy', 'xz', 'yz').
         x_range (tuple): Phạm vi trục X (xmin, xmax).
         y_range (tuple): Phạm vi trục Y (ymin, ymax).
         z_range (tuple): Phạm vi trục Z (zmin, zmax).
@@ -31,38 +31,36 @@ def plot_trajectory_2d(trajectory, projection_plane='xy', x_range=None, y_range=
         note (str): Ghi chú thêm trên đồ thị.
         debug (bool): Hiển thị hoặc ẩn trục tọa độ.
     """
+
+    note = f'{note} ({projection_plane.upper()} plane)'
     trajectory = np.array(trajectory)
     fig = go.Figure()
 
-    # Xử lý chiếu lên các mặt phẳng được chọn
+    # Xử lý chiếu lên các mặt phẳng được chọn và đặt tên trục phù hợp
     if projection_plane.lower() == 'xy':
         x, y = trajectory[:, 0], trajectory[:, 1]
-        xlabel, ylabel = 'X', 'Y'
+        xlabel, ylabel = 'X-axis', 'Y-axis'
+        x_lim, y_lim = x_range, y_range
     elif projection_plane.lower() == 'xz':
         x, y = trajectory[:, 0], trajectory[:, 2]
-        xlabel, ylabel = 'X', 'Z'
+        xlabel, ylabel = 'X-axis', 'Z-axis'
+        x_lim, y_lim = x_range, z_range
     elif projection_plane.lower() == 'yz':
         x, y = trajectory[:, 1], trajectory[:, 2]
-        xlabel, ylabel = 'Y', 'Z'
+        xlabel, ylabel = 'Y-axis', 'Z-axis'
+        x_lim, y_lim = y_range, z_range
     else:
-        raise ValueError("Invalid projection projection_plane. Choose from ['xy', 'xz', 'yz']")
+        raise ValueError("Invalid projection_plane. Choose from ['xy', 'xz', 'yz']")
 
     fig.add_trace(go.Scatter(
         x=x, 
         y=y, 
         mode='markers', 
         marker=dict(size=5, color='red'),
-        name=f"Projection on {projection_plane.upper()} projection_plane"
+        name=f"Projection on {projection_plane.upper()} plane"
     ))
 
-    # Cấu hình trục tọa độ
-    axis_config = {
-        'xaxis': dict(title="X-axis" if 'xy' in projection_planes or 'xz' in projection_planes else "Y-axis", 
-                      range=x_range, visible=debug),
-        'yaxis': dict(title="Y-axis" if 'xy' in projection_planes else ("Z-axis" if 'xz' in projection_planes else "Z-axis"), 
-                      range=y_range if 'xy' in projection_planes else z_range, visible=debug)
-    }
-
+    # Cấu hình trục tọa độ chính xác với mặt phẳng chiếu
     fig.update_layout(
         title=dict(
             text=note,  
@@ -70,7 +68,8 @@ def plot_trajectory_2d(trajectory, projection_plane='xy', x_range=None, y_range=
             x=0.5,  
             xanchor="center"
         ),
-        **axis_config
+        xaxis=dict(title=xlabel, range=x_lim, visible=debug),
+        yaxis=dict(title=ylabel, range=y_lim, visible=debug)
     )
 
     # Ẩn trục nếu không ở chế độ debug
